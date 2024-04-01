@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions" # search for actions - there are other options available
+    directory: "/" # search in .github/workflows under root `/`
+    schedule:
+      interval: "weekly" # check for action update every week
+  - package-ecosystem: "gomod" # search for go modules
+    directory: "/" # search in root `/`
+    schedule:
+      interval: "weekly" # check for go module update every week

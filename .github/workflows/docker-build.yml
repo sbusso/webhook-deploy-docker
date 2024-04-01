@@ -1,0 +1,70 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub recommends pinning actions to a commit SHA.
+# To get a newer version, you will need to update the SHA.
+# You can also reference a tag or branch, but the action may change without warning.
+
+name: Create and publish a Docker image
+
+on:
+  push:
+    branches: ["main", "development"]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # - name: Set DEPLOY_URL
+      #   id: set_vars
+      #   run: |
+      #     if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+      #       echo "DEPLOY_URL=${{ vars.PROD_DEPLOY_URL }}" >> $GITHUB_ENV
+      #     else
+      #       echo "DEPLOY_URL=${{ vars.DEV_DEPLOY_URL }}" >> $GITHUB_ENV
+      #     fi
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@5f4866a30a54f16a52d2ecb4a3898e9e424939cf
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@c314eea2b27e3cb3c7d7be0618510234d8f6178e
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0
+        with:
+          context: .
+          target: production
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      # - name: Invoke deployment hook
+      #   uses: "joelwmale/webhook-action@448a17bf857ead98546cfbdbe3b9d4cf979dda95"
+      #   with:
+      #     url: ${{ env.DEPLOY_URL }}
+      #     insecure: true
+      # - name: Slack Notify
+      #   uses: rtCamp/action-slack-notify@v2.2.1
+      #   env:
+      #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
