@@ -3,7 +3,7 @@ module github.com/sbusso/webhook-deploy-docker
 go 1.21.3
 
 require (
-	github.com/docker/docker v26.0.0+incompatible
+	github.com/docker/docker v26.1.4+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/rs/zerolog v1.32.0
